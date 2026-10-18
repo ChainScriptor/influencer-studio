@@ -46,7 +46,8 @@ CACHE_DIR = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache")) / "in
 MODELS_TTL_S = 3600
 UPLOAD_TTL_S = 24 * 3600
 TERMINAL = {"completed", "failed", "cancelled", "timeout", "deleted"}
-KEY_FILE_NAMES = ("wavespeed-key.txt", "wavespeed_key.txt")
+# The .txt.txt variant is what Windows Explorer creates when file extensions are hidden.
+KEY_FILE_NAMES = ("wavespeed-key.txt", "wavespeed_key.txt", "wavespeed-key.txt.txt")
 DEFAULT_MODELS = {"video": "bytedance/seedance-2.5/image-to-video"}
 
 STEPS = {
@@ -398,7 +399,8 @@ def studio_root(arg=None):
 
 
 def slugify(text):
-    s = re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
+    # Keep letters of any script, so a Greek or Cyrillic title stays readable and distinct.
+    s = re.sub(r"[\W_]+", "-", text.lower()).strip("-")
     return s or "project"
 
 
@@ -1005,6 +1007,12 @@ def build_parser():
 
 
 def main():
+    # Windows consoles and pipes default to a legacy code page that can't print Greek and other scripts.
+    for stream in (sys.stdout, sys.stderr):
+        try:
+            stream.reconfigure(encoding="utf-8")
+        except (AttributeError, ValueError):
+            pass
     args = build_parser().parse_args()
     try:
         args.fn(args)
