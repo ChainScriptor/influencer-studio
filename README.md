@@ -101,6 +101,17 @@ plugins/influencer-studio/                 the plugin
 influencer-studio.zip                      the same skill, ready to upload (rebuild with ./build-zip.sh)
 ```
 
+## Changelog
+
+**1.1.0**
+- Character builder with 34 menus: body, face, hair, wardrobe and setting.
+- Three concept pitches with a recommended pick, based on freshly searched viral examples.
+- Locked identity block, review of the base candidates, every prompt shown and saved before paying.
+- Fish Audio connector as a second engine (Seedance 2.5, Seedream 5.0, voices, lip-sync), billed in credits.
+- Fixes for Greek and other non-Latin text on Windows.
+
+**1.0.0**: first release (WaveSpeed, Seedance 2.5 by default).
+
 Not affiliated with WaveSpeed or ByteDance.
 
 ---
