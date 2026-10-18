@@ -1,0 +1,8 @@
+# API keys must never be committed
+wavespeed-key.txt
+wavespeed_key.txt
+.env
+# Projects created while testing the skill
+/influencer-studio/
+__pycache__/
+.DS_Store

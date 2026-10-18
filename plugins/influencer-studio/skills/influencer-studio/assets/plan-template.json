@@ -1,0 +1,36 @@
+{
+  "plans": [
+    {
+      "name": "first-episode-full",
+      "items": [
+        {"step": "look", "what": "master portrait candidates", "model": "bytedance/seedream-v5.0-pro",
+         "inputs": {"prompt": "portrait", "aspect_ratio": "9:16"}, "count": 8},
+        {"step": "look", "what": "reference sheet", "model": "bytedance/seedream-v5.0-pro/edit",
+         "inputs": {"prompt": "reference"}, "count": 6},
+        {"step": "voice", "what": "voice tests (3 voices)", "unit_usd": 0.03, "count": 3},
+        {"step": "production", "what": "keyframes (4 shots + 2 re-rolls)", "model": "bytedance/seedream-v5.0-pro/edit",
+         "inputs": {"prompt": "keyframe"}, "count": 6},
+        {"step": "production", "what": "voice lines", "unit_usd": 0.03, "count": 3},
+        {"step": "production", "what": "clips 5s, Seedance 2.5 (4 + 1 re-roll)", "model": "bytedance/seedance-2.5/image-to-video",
+         "inputs": {"prompt": "motion", "duration": 5}, "count": 5},
+        {"step": "production", "what": "talking shot, about 8s of audio", "model": "wavespeed-ai/infinitetalk",
+         "unit_usd": 0.30, "count": 1}
+      ]
+    },
+    {
+      "name": "first-episode-budget",
+      "items": [
+        {"step": "look", "what": "master portrait candidates", "model": "bytedance/seedream-v5.0-pro",
+         "inputs": {"prompt": "portrait", "aspect_ratio": "9:16"}, "count": 4},
+        {"step": "look", "what": "reference sheet", "model": "bytedance/seedream-v5.0-pro/edit",
+         "inputs": {"prompt": "reference"}, "count": 3},
+        {"step": "voice", "what": "one voice test", "unit_usd": 0.03, "count": 1},
+        {"step": "production", "what": "keyframes", "model": "bytedance/seedream-v5.0-pro/edit",
+         "inputs": {"prompt": "keyframe"}, "count": 3},
+        {"step": "production", "what": "voiceover lines", "unit_usd": 0.03, "count": 2},
+        {"step": "production", "what": "clips 5s, Seedance 2.5", "model": "bytedance/seedance-2.5/image-to-video",
+         "inputs": {"prompt": "motion", "duration": 5}, "count": 3}
+      ]
+    }
+  ]
+}

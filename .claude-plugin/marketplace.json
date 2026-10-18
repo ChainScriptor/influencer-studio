@@ -1,0 +1,19 @@
+{
+  "name": "influencer-studio",
+  "owner": {
+    "name": "ChainScriptor"
+  },
+  "metadata": {
+    "description": "Influencer Studio: create a viral AI character and short vertical videos end to end with WaveSpeed",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "influencer-studio",
+      "source": "./plugins/influencer-studio",
+      "description": "Six-step pipeline from idea to finished TikTok/Reels/Shorts videos: Character Bible, consistent look, voice, scripts, Seedance 2.5 video, lip-sync, editing and a posting pack, inside a hard budget cap.",
+      "version": "1.0.0",
+      "strict": true
+    }
+  ]
+}
