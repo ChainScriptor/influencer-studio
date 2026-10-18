@@ -12,6 +12,7 @@
 - From / lives in: <origin> / <home>
 - Former or current job: <job; it shapes their opinions>
 - Backstory: <one-line mystery / a few lines / none>
+- Builder choices: <codes from the character builder, e.g. A2 B2 C3 D3 ..., or "concept pitch">
 
 ## Scroll-stopper
 <The contrast or hook in one sentence, e.g. "A retired Milanese tailor in a three-piece suit, reviewing Gen-Z trends with zero facial expression.">

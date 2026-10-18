@@ -4,7 +4,7 @@ The goal is a character that (a) stops the scroll, (b) can carry a repeatable se
 
 How to pick the "(Recommended)" option: prefer the option with the strongest **contrast** that is also **easy to keep consistent and to animate**. A distinctive face, one signature outfit, one home location, one prop, and slow or arm-only motion are easy. Crowds, constantly changing outfits, fast full-body action and hands handling small objects are hard and expensive (see "AI feasibility" in `viral-patterns.md`).
 
-The flow: **batch A → three concept cards → the user picks → batch B → batch C → bible → lock gate.**
+The flow: **batch A → three concept cards → the user picks → batch B → batch C → bible → lock gate.** In builder mode (see `character-builder.md`), the builder's menus replace "who are they?" in batch A, the concept cards, and the face and hair questions of batch B. In "both" mode, the builder comes right after the user picks a concept.
 
 ## Batch A: the core (always ask)
 

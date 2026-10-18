@@ -9,7 +9,7 @@ A Claude skill that takes you from a rough idea to a recurring AI character and 
 | Step | What happens | Cost |
 |---|---|---|
 | Kickoff | Checks your WaveSpeed key and balance, opens or creates a project, sets a budget cap | free |
-| 1. Character | Interview (goal, identity, scroll-stopper, vibe), then a Character Bible | free |
+| 1. Character | Fresh viral examples, then three concept pitches or a menu-driven character builder (18 categories, from character type and build to hairstyle), then a Character Bible with a locked identity block | free |
 | 2. Look | Master portrait, then a reference sheet that locks the face for every later shot | low |
 | 3. Voice | Test 2–3 voices, lock one | low |
 | 4. Content | Series format, episode ideas, script and shot list, live price quote | free |
@@ -19,6 +19,7 @@ A Claude skill that takes you from a rough idea to a recurring AI character and 
 - **Budget guard:** every paid run is quoted first and needs your OK. The bundled script refuses to go past the cap.
 - **Consistency:** every image and clip is generated from the same master portrait and references, so the character looks the same in every video.
 - **Viral playbook:** hook rules, a format bank and script mechanics for AI characters are built in.
+- **Character builder:** pick every detail from numbered menus (Average to Extreme, animal characters, build, face, eyes, features, facial hair, hair colour and style, accessories), or let Claude pitch concepts and fine-tune them.
 - **Ready to post:** 1080×1920, -14 LUFS audio, captions placed outside the platform UI, cover frame, post copy.
 
 ## Requirements

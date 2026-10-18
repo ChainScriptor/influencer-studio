@@ -101,18 +101,24 @@ Read `references/character-interview.md` and `references/viral-patterns.md` now.
    - If you can search the web, look for AI characters and short-form formats that went viral in the last ~3 months (e.g. "viral AI character TikTok <month year>", "AI influencer went viral <month year>").
    - Write the 3–5 strongest real cases to `01-character/trend-notes.md`, with today's date, the link, and one line on why each worked. Reuse a notes file that is less than 14 days old.
    - Only cite cases you actually found, with their links. Never invent a case or its numbers. Without web search, say so in one line and work from `viral-patterns.md`.
-2. **Core batch.** Ask batch A from the interview guide: goal, who they are, the scroll-stopper, the vibe.
-3. **Pitch three concepts.**
+2. **Design mode.** Ask "How do you want to design the character?":
+   - Pitch me three concepts (Recommended)
+   - Build it myself with the character builder
+   - Both: pitch concepts, then fine-tune the look in the builder
+
+   The builder is a set of numbered menus: character type (including anthropomorphic animals), gender, age, ethnicity, skin, build, height, proportions, head, neck, eyes, features, facial hair, distinctive features, hair colour, hairstyle and accessories. It lives in `references/character-builder.md`; read it when the user picks builder or both. In builder mode, ask batch A without "who are they?" (the builder covers it), run the builder's three batches, then propose the format and name around the look, and continue at the detail batches below.
+3. **Core batch.** Ask batch A from the interview guide: goal, who they are, the scroll-stopper, the vibe.
+4. **Pitch three concepts.**
    - Open with one line on the notes ("The viral-patterns notes were refreshed today, so I'll pitch from those. They include <case> from <month>.") and one line restating the brief.
    - Pitch three distinct characters as concept cards (the format is in the interview guide): name and series nickname, concept, signature look, attitude, format, and why it works, including the production risk.
    - Mark your favourite "⭐ my pick" and close with "My recommendation is <name>." and the reason. Weigh how strongly it stops the scroll, how repeatable the format is, and how well today's video models handle that kind of motion ("AI feasibility" in `viral-patterns.md`).
-   - The user picks one, mixes two, or asks for three new ones.
-4. **Detail batches.** Settle the details with batches B and C from the interview guide: face extras as a multi-select, hair, outfit, backstory, voice, boundaries. Offer specific options that fit the chosen concept, and accept "you fill in the rest".
-5. **Write the bible** in `01-character/character-bible.md`, from `assets/character-bible-template.md`.
+   - The user picks one, mixes two, or asks for three new ones. In "both" mode, open the builder next with the chosen concept's options marked ★, so the user only changes what they want.
+5. **Detail batches.** Settle the details with batches B and C from the interview guide: face extras as a multi-select, hair, outfit, backstory, voice, boundaries. Offer specific options that fit the chosen concept, and accept "you fill in the rest".
+6. **Write the bible** in `01-character/character-bible.md`, from `assets/character-bible-template.md`.
    - The **Identity block** describes only the face and body: face shape, eyes, brows, nose, marks, facial hair, hair, skin tone, build. It is pasted word for word into every image prompt and never changes.
    - Wardrobe, props and settings are a separate section, so the gear can change without the face drifting.
-6. **Lock gate.** Summarise in a few lines: name, concept, the key identity marks, signature look, the bit. Then ask "Anything to change before we lock <name>?", with "Lock it (Recommended)" first. Mention once that the platform's AI-generated label should be on whenever the character is posted.
-7. Save: `set <slug> character.name="..." character.concept="..." current_step=look`.
+7. **Lock gate.** Summarise in a few lines: name, concept, the key identity marks, signature look, the bit. Then ask "Anything to change before we lock <name>?", with "Lock it (Recommended)" first. Mention once that the platform's AI-generated label should be on whenever the character is posted.
+8. Save: `set <slug> character.name="..." character.concept="..." current_step=look`.
 
 ## Step 2: Look (paid, low)
 
@@ -121,7 +127,16 @@ The look must stay the same in every video. Lock it once and reuse it everywhere
 1. **Base portrait (the master).**
    - Write the prompt from the base-portrait recipe in `references/models-and-costs.md`: the identity block word for word, a calm everyday scene, chest-up straight-on framing, the wardrobe, real-skin details, phone-camera look, and the negatives. Save it as `prompts/base.txt`.
    - Present the batch in the standard way (header, prompt, why it works, cost plan, approval question; see "Money" above). The base portrait is the reference that every later image and clip copies the face from, so its "why it works" should explain the choices that protect that: even light, nothing covering the eyes or brows, no selfie distortion, hands out of frame.
-   - Generate 4 candidates (`run ... --prompt-file prompts/base.txt`) and show them numbered side by side. Allow up to two rounds of changes, then copy the chosen one to `02-look/master.png`.
+   - Generate 4 candidates (`run ... --prompt-file prompts/base.txt`) and show them numbered side by side.
+   - **Review them yourself before asking.** Give one line per image on what is convincing and what is off (AI-ish smooth skin, wide-angle nose, HDR sheen, a warped detail). Check each one against the identity block: are the marks present, and on the right side? Name the closest match for anything no candidate fully nails.
+   - Ask "Which one becomes <name>'s locked face?":
+     - "#N as is (Recommended)": the most real one, $0 extra.
+     - "#N + <fix> edit (~$x)": one cheap edit pass that fixes a single detail (bushier brows, for example) and keeps everything else.
+     - "Another number": the user names it, and any fix.
+     - "None, try again": adjust the prompt first.
+
+     Allow up to two rounds, then copy the chosen image to `02-look/master.png`.
+   - **The image is now the source of truth.** Where it differs from the bible (for example, the mole landed on the left cheek instead of the right), update the identity block to match the image, and say so. Every later prompt and edit copies the image, so the text must describe what the image shows.
    - If the user started from a photo, use it as the reference for an edit model instead of text-to-image.
 2. **Reference sheet.** Save each prompt as `prompts/ref-<what>.txt`. With an image-edit model and the master as the reference, generate 4–6 references: a front close-up, a three-quarter view, the full body in the signature outfit, two key expressions, and the character in their signature setting. Save them as `02-look/refs/ref-<what>.png`. Compare each one with the master and discard any where the face drifted. These references anchor every later shot.
 
