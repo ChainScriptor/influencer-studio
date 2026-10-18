@@ -1,6 +1,6 @@
 ---
 name: influencer-studio
-description: Create an AI influencer or viral AI character and produce finished short vertical videos (TikTok, Reels, Shorts) end to end on WaveSpeed. Covers a character interview and Character Bible, a consistent face and look, a voice, a content plan and scripts, image and video generation with lip-sync, editing, and a posting pack, all inside a hard budget cap. Use it when the user types /influencer-studio, or wants to create an AI influencer, virtual creator, AI character or mascot for social media, make AI-generated shorts or UGC-style videos with a recurring character, keep an AI character consistent across videos, or continue an existing influencer-studio project. Use it even if they don't mention WaveSpeed.
+description: Create an AI influencer or viral AI character and produce finished short vertical videos (TikTok, Reels, Shorts) end to end, generating on WaveSpeed or on the Fish Audio connector (Seedance 2.5 video, Seedream images, voices, lip-sync). Covers a character interview and Character Bible, a consistent face and look, a voice, a content plan and scripts, image and video generation with lip-sync, editing, and a posting pack, all inside a hard budget cap. Use it when the user types /influencer-studio, or wants to create an AI influencer, virtual creator, AI character or mascot for social media, make AI-generated shorts or UGC-style videos with a recurring character, keep an AI character consistent across videos, or continue an existing influencer-studio project. Use it even if they don't name a generation provider.
 ---
 
 # Influencer Studio
@@ -24,12 +24,21 @@ The pipeline has a kickoff and six steps. Steps 1, 4 and 6 are free; steps 2, 3 
 - **Language.** Talk in the user's language and write the project documents in it. Write image and video prompts in English, because most models follow English best. Dialogue stays in the character's language.
 - **Ask in batches.** Ask up to four questions at a time. Give each one 2–4 concrete options and put your recommended option first, marked "(Recommended)". If a structured question tool is available (for example AskUserQuestion), use it; otherwise use numbered options. The user can then say "go with your picks" and keep moving. Base each batch's options on the earlier answers, so the questions never feel generic.
 - **Show progress.** Keep a visible checklist of the kickoff and the six steps (use a todo/task tool if there is one) and tick steps off as you go.
-- **Money.** Before any paid batch, state what it is, how many runs, and the quoted cost, and get a yes. Ask for approval per batch ("4 portrait candidates, about $0.16, go?"), not per image. `studio.py` enforces the budget cap on its own. Raise the cap only when the user asks for it.
+- **Money.** Before any paid batch, state what it is, how many runs, and the quoted cost (dollars on WaveSpeed, credits on Fish Audio), and get a yes. Ask for approval per batch ("4 portrait candidates, about $0.16, go?"), not per image. `studio.py` enforces the budget and credit caps. Raise a cap only when the user asks for it.
 - **Show every result.** Display or attach the generated images and videos (or give their paths) and let the user choose. Look at them yourself before showing them, and re-roll obvious failures (warped hands, a different face, broken text) once before asking.
 
-## The engine: `scripts/studio.py`
+## Engines
 
-All generation goes through `python3 <skill-dir>/scripts/studio.py`, where `<skill-dir>` is the folder containing this file. The script needs only the Python standard library. It talks to the WaveSpeed API, uploads local files, downloads results into the project, and logs every paid run in the project's ledger, so the budget is always known. Run it from the user's workspace folder (the folder they opened or selected for this session), because the projects live in `./influencer-studio/<slug>/` there and the user can open the files. If you can't `cd` there, pass `--root <workspace>/influencer-studio` before the command name.
+There are two generation engines, and one project can use both:
+
+- **Fish Audio**, through its Claude connector (the Fish Audio tools: `estimate_*`, `generate_*`, `text_to_speech`, ...). It bills credits from the user's Fish plan, needs no key file, and offers Seedance 2.5, Seedream 5.0, voices and lip-sync. A free plan's monthly credits cost the user nothing extra, so use them first when they're available. Read `references/fish-audio.md` before the first Fish call.
+- **WaveSpeed**, through `scripts/studio.py` (described below). It is pay-as-you-go in dollars and needs an API key.
+
+`studio.py` keeps the books for both. WaveSpeed runs log themselves. Fish generations are checked with `studio.py guard` before they run and logged with `studio.py record` right after they finish. That way `budget` always shows the whole spend, in USD and credits, and the files land in the project folder. Save the choice with `set <slug> engine=fish|wavespeed|mixed`.
+
+## WaveSpeed through `scripts/studio.py`
+
+`python3 <skill-dir>/scripts/studio.py`, where `<skill-dir>` is the folder containing this file, is also the bookkeeper for Fish Audio. The script needs only the Python standard library. It talks to the WaveSpeed API, uploads local files, downloads results into the project, and logs every paid run in the project's ledger, so the budget is always known. Run it from the user's workspace folder (the folder they opened or selected for this session), because the projects live in `./influencer-studio/<slug>/` there and the user can open the files. If you can't `cd` there, pass `--root <workspace>/influencer-studio` before the command name.
 
 | Command | Use |
 |---|---|
@@ -44,6 +53,9 @@ All generation goes through `python3 <skill-dir>/scripts/studio.py`, where `<ski
 | `quote-plan <plan.json>` | Quote a whole plan (free) |
 | `run <model> --project <slug> --step <1-6> -i k=v [-p prompt] [--label x] [-o path] [--dry-run]` | Paid generation with the budget guard |
 | `show <id> --project <slug>` | Resume a run that was still generating, and download its outputs |
+| `guard <slug> --credits N` | Before a Fish Audio batch: does it fit the project's credit cap? |
+| `record --project <slug> --step <1-6> --engine fish --model <id> --id <generation_id> --credits N [--label x] [-o path] <url ...>` | After a Fish Audio generation: download the files and log the credits |
+| `fileinfo <file>` / `put <file> <upload_url>` | Upload a local file to a Fish Audio upload slot |
 
 Some behaviour to know about:
 
@@ -56,18 +68,21 @@ Some behaviour to know about:
 
 ## Kickoff
 
-1. Run `studio.py check`.
-   - `needs_key`: explain that WaveSpeed needs an API key from https://wavespeed.ai/accesskey and a small top-up. They should save the key as a one-line text file named `wavespeed-key.txt` in their workspace folder (`wavespeed login` from the WaveSpeed CLI or a `WAVESPEED_API_KEY` variable also work). Ask them not to paste the key into the chat, because it would stay in the conversation history. If the workspace is a git repository, add `wavespeed-key.txt` to `.gitignore`.
+1. Check the engines and existing projects.
+   - If the Fish Audio tools are available, call `get_credit_balance` and `list_my_workspaces` and keep the workspace id.
+   - Run `studio.py check` (WaveSpeed key, balance, and projects). If Fish Audio has credits, a missing WaveSpeed key is not a blocker; mention it as optional.
+   - `needs_key` (when WaveSpeed is wanted): explain that WaveSpeed needs an API key from https://wavespeed.ai/accesskey and a small top-up. They should save the key as a one-line text file named `wavespeed-key.txt` in their workspace folder (`wavespeed login` from the WaveSpeed CLI or a `WAVESPEED_API_KEY` variable also work). Ask them not to paste the key into the chat, because it would stay in the conversation history. If the workspace is a git repository, add `wavespeed-key.txt` to `.gitignore`.
    - Network error: the sandbox is blocking the domain. Ask the user to allow `api.wavespeed.ai` and the download domain named in the error in their app's network or domain allowlist settings, then check again.
    - Existing projects: offer to continue one of them.
-2. Present the pipeline table above with a cost estimate for a full path and a budget path. Use the ballpark figures in `references/models-and-costs.md`; once the key works, replace them with a live `quote-plan` of `assets/plan-template.json`.
+2. Present the pipeline table above with a cost estimate for a full path and a budget path. Use the ballpark figures in `references/models-and-costs.md` (dollars) and `references/fish-audio.md` (credits). Once the engine works, replace them with live numbers: `quote-plan` of `assets/plan-template.json` on WaveSpeed, or the estimate tools on Fish Audio.
 3. Ask one batch:
    - **Starting point:** from scratch (Recommended) / from a photo / continue a project.
    - **Platform:** TikTok + Reels + Shorts (Recommended; all 9:16) / one of them.
    - **Budget cap:** $10 (Recommended) / $5 / $20.
+   - **Engine** (only when both are available): Fish Audio first, then WaveSpeed when the credits run out (Recommended when Fish has credits) / Fish Audio only / WaveSpeed only.
 
-   "From a photo" means the user's own photo, or a photo of someone who has consented. Say that once, plainly.
-4. Run `init` with a working title (the character's name can come later), the budget, the platform and the language. Tell the user where the project folder is.
+   With Fish Audio, also set a credit cap: by default the credits the user is willing to spend from their current balance (`--credit-cap`). "From a photo" means the user's own photo, or a photo of someone who has consented. Say that once, plainly.
+4. Run `init` with a working title (the character's name can come later), the budget, the credit cap, the platform and the language. Then `set <slug> engine=... fish.workspace_id=...`. Tell the user where the project folder is.
 
 **Continuing a project:** run `status <slug>`, read `project.json` and `01-character/character-bible.md`, summarise in a few lines where things stand (step, spend, what was approved), and resume at `current_step`.
 
@@ -85,12 +100,14 @@ Read `references/character-interview.md` and `references/viral-patterns.md` now.
 The look must stay the same in every video. Lock it once and reuse it everywhere.
 
 1. **Master portrait.** Build one prompt from the Visual DNA, following the prompting guide in `references/models-and-costs.md`. Quote 4 candidates, get approval, generate them, and show them. Allow up to two rounds of changes, then copy the chosen image to `02-look/master.png`. If the user started from a photo, use it as the reference for an edit model instead of text-to-image.
-2. **Reference sheet.** With an image-edit model and the master as the reference (`-i images='["@02-look/master.png"]'`), generate 4–6 references: a front close-up, a three-quarter view, the full body in the signature outfit, two key expressions, and the character in their signature setting. Save them as `02-look/refs/ref-<what>.png`. Compare each one with the master and discard any where the face drifted. These references anchor every later shot.
-3. Save the choices: `set <slug> models.image=<id> models.edit=<id> current_step=voice`.
+2. **Reference sheet.** With an image-edit model and the master as the reference, generate 4–6 references: a front close-up, a three-quarter view, the full body in the signature outfit, two key expressions, and the character in their signature setting. Save them as `02-look/refs/ref-<what>.png`. Compare each one with the master and discard any where the face drifted. These references anchor every later shot.
+
+   How to pass the master: on WaveSpeed, `-i images='["@02-look/master.png"]'`; on Fish Audio, `generate_image_edit` with the master's `object_key` as role `ref`.
+3. Save the choices: `set <slug> models.image=<id> models.edit=<id> current_step=voice`. On Fish Audio, also save the object keys (`fish.objects.master=...`, `fish.objects.ref_front=...`), so later episodes reuse them without uploading again.
 
 ## Step 3: Voice (paid, low; skip for silent characters)
 
-1. Search for speech models (`models speech`, `models tts`, `-t text-to-audio`) and read their schemas. Pick 2–3 candidate voices or voice descriptions that match the bible: age, accent, energy.
+1. Find voices. Fish Audio specialises in speech: if it is connected, use `search_voices` with the character's language (for example `el` for Greek) and `text_to_speech`. Otherwise search WaveSpeed for speech models (`models speech`, `models tts`, `-t text-to-audio`) and read their schemas. Pick 2–3 candidate voices or voice descriptions that match the bible: age, accent, energy.
 2. Generate the same line, ideally the catchphrase, in each voice and let the user listen and pick.
 3. Lock the voice: model, voice ID or description, speed and other settings, in `03-voice/voice.json` and with `set <slug> voice.model=... voice.id=...`. Add it to the bible.
 
@@ -103,7 +120,7 @@ Read `references/production-guide.md` (script and shot-list format) and use the 
 1. **Series format.** Propose 2–3 repeatable formats that fit the character, each with a name, a hook formula, a length (7–20s) and a sign-off. The user picks one. A series beats one-off videos, because viewers come back for the bit.
 2. **Episode ideas.** Pitch 3–5 episodes as one-line loglines with the hook as its own line. The user picks the first one to produce. Do more only if the budget allows.
 3. **Script and shot list.** Write `04-content/ep01-script.md` in the format from the production guide. Each shot has a duration, a keyframe prompt, a motion prompt, its dialogue, on-screen text and sound. Fewer, stronger shots are both cheaper and funnier: 3–5 shots for a 10–15s video.
-4. **Quote.** Write `04-content/ep01-plan.json` (the format is in `assets/plan-template.json`) and run `quote-plan`. Show the total next to the remaining budget. If it is tight, offer a cheaper variant: fewer or shorter shots, or stills with a voiceover. Switch to the cheaper MiniMax H3 video model only if the user explicitly agrees, because Seedance 2.5 is the studio's quality default. Get approval, then `set <slug> current_step=production`.
+4. **Quote.** For WaveSpeed, write `04-content/ep01-plan.json` (the format is in `assets/plan-template.json`) and run `quote-plan`. For Fish Audio, estimate each item with the estimate tools, add up the credits, and check the total with `studio.py guard <slug> --credits N`. Show the total next to the remaining budget. If it is tight, offer a cheaper variant: fewer or shorter shots, or stills with a voiceover. Switch to the cheaper MiniMax H3 video model only if the user explicitly agrees, because Seedance 2.5 is the studio's quality default. Get approval, then `set <slug> current_step=production`.
 
 ## Step 5: Production (most of the spend)
 
@@ -112,6 +129,8 @@ Spend in order from cheap to expensive, so that you never pay for a video of a f
 1. **Keyframes.** For each shot, make one still with the edit model, using the master and the most relevant reference. Start the prompt with an instruction to keep the person identical (see the prompting guide). Show all keyframes together and re-roll only the ones the user rejects.
 2. **Voice lines.** Generate the dialogue with the locked voice, one file per line, and check the durations with `assemble.py --probe`.
 3. **Clips.** Animate each approved keyframe with the project's video model, `models.video` in project.json. It defaults to `bytedance/seedance-2.5/image-to-video`: run `schema` on it once per project to confirm its inputs (durations, resolutions). Use the motion prompt from the shot list, with one clear action and one camera move. For shots where the character speaks to camera, use a talking-avatar / lip-sync model with the keyframe and the voice line instead.
+
+   On Fish Audio: use `seedance-2.5` i2v with the keyframe as `startFrame`. The clip takes the keyframe's aspect ratio, so keyframes must be 9:16. Alternatively, use the `reference` capability with the master and the references, which holds the face even better. For talking shots, the cheapest route is to generate the clip and then run `veed/lipsync/lip-sync` with the clip and the voice line. After every finished Fish generation, run `studio.py record` (see `references/fish-audio.md`).
 4. **Review.** Watch every clip, or look at frames from it. Re-roll a shot once if the face drifts, the hands or objects warp, or the motion looks uncanny. If it still fails, ask the user whether to simplify the shot.
 5. Name files predictably with `-o`: `05-production/ep01/shot01-key.{ext}`, `shot01-clip.{ext}`, `line01.{ext}`.
 

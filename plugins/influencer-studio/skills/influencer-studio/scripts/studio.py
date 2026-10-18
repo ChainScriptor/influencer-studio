@@ -21,6 +21,13 @@ Commands
   show ID [--project P --step S]              check, resume or download a prediction
   history [--model M]         predictions from the last 24h
 
+Other engines (Fish Audio runs through its Claude connector, not this script)
+  guard PROJECT --credits N   check a planned Fish Audio spend against the credit cap
+  record --project P --step S --engine fish --model M --credits N --id ID [URL ...]
+                              log a finished generation and download its files
+  fileinfo FILE               exact byte size and content type (for upload slots)
+  put FILE URL                PUT a file to a presigned upload URL
+
 Inputs: -i key=value is parsed as JSON when it can be (numbers, true/false,
 arrays), otherwise kept as a string. A value starting with @ is a local file:
 it is uploaded and replaced by its URL, also inside arrays (images='["@a.png"]').
@@ -195,8 +202,8 @@ def _request(method, url, body=None, headers=None, timeout=60, raw=False):
         reason = getattr(e, "reason", e)
         raise NetError(
             f"Network error reaching {urllib.parse.urlparse(url).netloc}: {reason}. If this keeps happening, "
-            "the sandbox may be blocking the domain: the user must allow api.wavespeed.ai (and the CDN "
-            "domain of the output links) in the app's network settings."
+            "the sandbox may be blocking that domain: the user must allow it in the app's network settings "
+            "(WaveSpeed: api.wavespeed.ai and its file CDN; Fish Audio: *.fish.audio)."
         )
 
 
@@ -442,7 +449,7 @@ def ledger_state(pdir):
         if not e.get("id"):
             continue
         t = tasks.setdefault(e["id"], {"id": e["id"]})
-        for k in ("model", "step", "label", "cost_usd"):
+        for k in ("model", "step", "label", "cost_usd", "engine", "credits", "view_url"):
             if k in e:
                 t[k] = e[k]
         t["status"] = e.get("event")
@@ -457,19 +464,30 @@ def spend_summary(pdir, project=None):
     # Failed tasks are refunded by WaveSpeed, so they don't count against the cap.
     counted = [t for t in tasks.values() if t.get("status") != "failed"]
     spent = money(sum(t.get("cost_usd", 0) for t in counted))
-    by_step = {}
+    credits = int(sum(t.get("credits", 0) for t in counted))
+    by_step, credits_by_step = {}, {}
     for t in counted:
-        by_step[t.get("step", "?")] = money(by_step.get(t.get("step", "?"), 0) + t.get("cost_usd", 0))
+        step = t.get("step", "?")
+        if t.get("cost_usd"):
+            by_step[step] = money(by_step.get(step, 0) + t["cost_usd"])
+        if t.get("credits"):
+            credits_by_step[step] = int(credits_by_step.get(step, 0) + t["credits"])
     budget = money(project.get("budget_usd", 0))
+    cap = project.get("fish_credit_cap")
     return {
         "spent_usd": spent,
         "budget_usd": budget,
         "remaining_usd": money(budget - spent),
         "by_step": by_step,
+        "fish_credits_spent": credits,
+        "fish_credit_cap": cap,
+        "fish_credits_remaining": (int(cap) - credits) if cap is not None else None,
+        "fish_credits_by_step": credits_by_step,
         "runs": len(counted),
         "failed_runs": len(tasks) - len(counted),
         "pending_runs": [t["id"] for t in counted if t.get("status") in ("submitted", "pending")],
-        "note": "Spend is the sum of WaveSpeed price quotes; the WaveSpeed dashboard shows the exact charges.",
+        "note": "USD is the sum of WaveSpeed price quotes; credits are what Fish Audio charged. "
+                "The providers' dashboards show the exact charges.",
     }
 
 
@@ -635,6 +653,7 @@ def cmd_init(a):
         "created_at": now_iso(),
         "platform": a.platform,
         "budget_usd": money(a.budget),
+        "fish_credit_cap": a.credit_cap,
         "starting_point": a.start,
         "current_step": "character",
         "language": a.language,
@@ -686,6 +705,11 @@ def cmd_budget(a):
         p["budget_usd"] = money(a.set)
         save_project(pdir, p)
         ledger_append(pdir, {"event": "budget_changed", "id": None, "from_usd": old, "to_usd": p["budget_usd"]})
+    if a.set_credits is not None:
+        old = p.get("fish_credit_cap")
+        p["fish_credit_cap"] = a.set_credits
+        save_project(pdir, p)
+        ledger_append(pdir, {"event": "credit_cap_changed", "id": None, "from": old, "to": a.set_credits})
     emit(spend_summary(pdir, p))
 
 
@@ -786,6 +810,72 @@ def cmd_quote_plan(a):
 def cmd_upload(a):
     key = require_key(a.root)
     emit({"file": a.file, "url": upload_file(key, a.file)})
+
+
+def cmd_guard(a):
+    pdir = resolve_project(a.project, a.root)
+    s = spend_summary(pdir)
+    keys = ("fish_credits_spent", "fish_credit_cap", "fish_credits_remaining")
+    cap = s["fish_credit_cap"]
+    if cap is not None and s["fish_credits_spent"] + a.credits > cap:
+        raise StudioError(
+            f"Credit cap reached: this needs {a.credits} credits, {s['fish_credits_remaining']} of {cap} are left. "
+            "Ask the user whether to raise the cap (`budget PROJECT --set-credits N`) or choose a cheaper option.",
+            code=3, **{k: s[k] for k in keys},
+        )
+    emit({"ok": True, "credits": a.credits, **{k: s[k] for k in keys}})
+
+
+def cmd_record(a):
+    pdir = resolve_project(a.project, a.root)
+    step = norm_step(a.step)
+    label = slugify(a.label) if a.label else slugify(a.model.split("/")[-1])
+    known = ledger_state(pdir).get(a.id, {})
+    if known.get("status") == "completed" and known.get("files"):
+        emit({"status": "already recorded", "id": a.id, "files": known["files"]})
+        return
+    files, warning = [], None
+    if a.urls:
+        try:
+            files = download_outputs(a.urls, pdir, step, a.id, label, a.out)
+        except StudioError as e:
+            warning = f"{e} The run is logged without files; run `record` again with the same --id later, or use the view URL."
+    if not known:
+        # Logged once per id, so recording again after a failed download never double-counts the cost.
+        entry = {"event": "submitted", "id": a.id, "engine": a.engine, "model": a.model, "step": step, "label": label,
+                 "credits": a.credits}
+        if a.usd:
+            entry["cost_usd"] = money(a.usd)
+        ledger_append(pdir, entry)
+    done = {"event": "completed", "id": a.id, "outputs": a.urls, "files": files}
+    if a.view_url:
+        done["view_url"] = a.view_url
+    ledger_append(pdir, done)
+    s = spend_summary(pdir)
+    emit({"status": "recorded", "id": a.id, "step": step, "files": files, "warning": warning,
+          **{k: s[k] for k in ("fish_credits_spent", "fish_credit_cap", "fish_credits_remaining", "spent_usd", "budget_usd")}})
+
+
+def cmd_fileinfo(a):
+    p = Path(a.file)
+    if not p.is_file():
+        raise StudioError(f"File not found: {a.file}")
+    emit({"file": str(p.resolve()), "file_name": p.name, "bytes": p.stat().st_size,
+          "content_type": mimetypes.guess_type(p.name)[0]})
+
+
+def cmd_put(a):
+    p = Path(a.file)
+    blob = p.read_bytes()
+    headers = {"Content-Type": a.content_type or mimetypes.guess_type(p.name)[0] or "application/octet-stream",
+               "Content-Length": str(len(blob))}
+    for h in a.header:
+        k, sep, v = h.partition(":")
+        if not sep:
+            raise StudioError(f"Bad header {h!r}: use Name: value")
+        headers[k.strip()] = v.strip()
+    status, _, _ = _request("PUT", a.url, body=blob, headers=headers, timeout=600, raw=True)
+    emit({"uploaded": str(p), "bytes": len(blob), "http_status": status})
 
 
 def cmd_run(a):
@@ -934,6 +1024,7 @@ def build_parser():
     sp.add_argument("--platform", default="tiktok-reels-shorts")
     sp.add_argument("--start", default="scratch", help="scratch | photo | existing")
     sp.add_argument("--language", default="en", help="language the character speaks")
+    sp.add_argument("--credit-cap", type=int, help="optional cap on Fish Audio credits for this project")
     sp.set_defaults(fn=cmd_init)
 
     sub.add_parser("projects").set_defaults(fn=cmd_projects)
@@ -950,6 +1041,7 @@ def build_parser():
     sp = sub.add_parser("budget")
     sp.add_argument("project")
     sp.add_argument("--set", type=float, help="new cap in USD (only when the user asked for it)")
+    sp.add_argument("--set-credits", type=int, help="new Fish Audio credit cap (only when the user asked for it)")
     sp.set_defaults(fn=cmd_budget)
 
     sp = sub.add_parser("models")
@@ -976,6 +1068,36 @@ def build_parser():
     sp = sub.add_parser("upload")
     sp.add_argument("file")
     sp.set_defaults(fn=cmd_upload)
+
+    sp = sub.add_parser("guard")
+    sp.add_argument("project")
+    sp.add_argument("--credits", type=int, required=True, help="credits the next Fish Audio generation will cost")
+    sp.set_defaults(fn=cmd_guard)
+
+    sp = sub.add_parser("record")
+    sp.add_argument("urls", nargs="*", metavar="URL", help="result URLs to download into the project")
+    sp.add_argument("--project", required=True)
+    sp.add_argument("--step", required=True)
+    sp.add_argument("--engine", default="fish")
+    sp.add_argument("--model", required=True)
+    sp.add_argument("--id", required=True, help="the engine's generation id")
+    sp.add_argument("--credits", type=int, default=0, help="credits charged")
+    sp.add_argument("--usd", type=float, help="cost in USD, when the engine bills in dollars")
+    sp.add_argument("--label")
+    sp.add_argument("-o", "--out", help="output path template relative to the project")
+    sp.add_argument("--view-url", help="where the user can see the result if the download fails")
+    sp.set_defaults(fn=cmd_record)
+
+    sp = sub.add_parser("fileinfo")
+    sp.add_argument("file")
+    sp.set_defaults(fn=cmd_fileinfo)
+
+    sp = sub.add_parser("put")
+    sp.add_argument("file")
+    sp.add_argument("url")
+    sp.add_argument("--content-type")
+    sp.add_argument("--header", action="append", default=[], metavar="'Name: value'")
+    sp.set_defaults(fn=cmd_put)
 
     sp = sub.add_parser("run")
     sp.add_argument("model")

@@ -1,5 +1,7 @@
 # Models, costs and prompting
 
+This file covers WaveSpeed models and the prompting guide, which applies to every engine. For the Fish Audio engine's models, credits and tool cycle, see `fish-audio.md`.
+
 ## Contents
 1. Default models per role
 2. Verifying a model before use

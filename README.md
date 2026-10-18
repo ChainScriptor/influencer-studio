@@ -1,6 +1,6 @@
 # Influencer Studio
 
-A Claude skill that takes you from a rough idea to a recurring AI character and finished vertical videos for TikTok, Reels and Shorts. Claude runs the whole pipeline: it interviews you, keeps the character's face and voice consistent, writes the scripts, generates images and video on [WaveSpeed](https://wavespeed.ai) (Seedance 2.5 by default), edits the final cut, and never spends more than the budget you set.
+A Claude skill that takes you from a rough idea to a recurring AI character and finished vertical videos for TikTok, Reels and Shorts. Claude runs the whole pipeline: it interviews you, keeps the character's face and voice consistent, writes the scripts, generates images and video on [WaveSpeed](https://wavespeed.ai) or through the [Fish Audio](https://fish.audio) connector (Seedance 2.5 by default on both), edits the final cut, and never spends more than the budget you set.
 
 [Ελληνικά παρακάτω](#ελληνικά)
 
@@ -24,7 +24,9 @@ A Claude skill that takes you from a rough idea to a recurring AI character and 
 ## Requirements
 
 - Claude with skills: the Claude desktop or web app (including Cowork), or Claude Code.
-- A WaveSpeed account with an API key and some credit: https://wavespeed.ai/accesskey
+- At least one generation engine:
+  - **Fish Audio** connector in Claude (Settings → Connectors). It uses your Fish plan's credits, including the free monthly ones, and needs no key file.
+  - **WaveSpeed**: an account with an API key and some credit, https://wavespeed.ai/accesskey
 - Python 3.8+ in Claude's environment (standard library only). ffmpeg for the final edit; if it's missing, the skill installs `imageio-ffmpeg`.
 
 ## Install
@@ -45,7 +47,11 @@ git clone https://github.com/ChainScriptor/influencer-studio
 cp -r influencer-studio/plugins/influencer-studio/skills/influencer-studio ~/.claude/skills/
 ```
 
-## Set up WaveSpeed (once)
+## Set up Fish Audio (optional, once)
+
+Connect Fish Audio under Settings → Connectors in the Claude app. The skill checks your credits at the start, asks you for a credit cap, and logs every generation's credits in the project. If downloads are blocked, allow `*.fish.audio` in the app's network settings.
+
+## Set up WaveSpeed (optional if you use Fish Audio, once)
 
 1. Create an API key at https://wavespeed.ai/accesskey and add a few dollars of credit.
 2. Save the key as a one-line text file named `wavespeed-key.txt` in the folder you work in with Claude. (A `WAVESPEED_API_KEY` environment variable, or `wavespeed login` from the WaveSpeed CLI, also work.)
@@ -89,7 +95,7 @@ plugins/influencer-studio/                 the plugin
   skills/influencer-studio/SKILL.md        the skill
     scripts/studio.py                      WaveSpeed client, projects, budget ledger
     scripts/assemble.py                    ffmpeg edit: 9:16, audio mix, captions, cover
-    references/                            interview, viral patterns, models and costs, production guide
+    references/                            interview, viral patterns, models and costs, Fish Audio, production guide
     assets/                                Character Bible template, cost-plan template
 influencer-studio.zip                      the same skill, ready to upload (rebuild with ./build-zip.sh)
 ```
@@ -109,7 +115,7 @@ Skill για το Claude που φτιάχνει έναν viral AI χαρακτ�
 5. Παραγωγή με Seedance 2.5 στη WaveSpeed
 6. Τελικό μοντάζ και κείμενα για δημοσίευση
 
-Το skill δείχνει το κόστος πριν από κάθε πληρωμή και δεν ξεπερνά ποτέ το όριο budget που ορίζετε.
+Δουλεύει με τη WaveSpeed ή με το Fish Audio connector, που χρησιμοποιεί τα credits του λογαριασμού σας (και τα δωρεάν). Το skill δείχνει το κόστος πριν από κάθε πληρωμή και δεν ξεπερνά ποτέ το όριο budget που ορίζετε.
 
 **Εγκατάσταση στην εφαρμογή Claude:**
 1. Κατεβάστε το [`influencer-studio.zip`](https://github.com/ChainScriptor/influencer-studio/raw/main/influencer-studio.zip).

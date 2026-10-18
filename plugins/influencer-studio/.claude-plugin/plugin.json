@@ -1,6 +1,6 @@
 {
   "name": "influencer-studio",
-  "description": "Create a viral AI character and finished short vertical videos (TikTok, Reels, Shorts) end to end on WaveSpeed: Character Bible, consistent look, voice, scripts, Seedance 2.5 video, lip-sync, editing and a posting pack, inside a hard budget cap.",
+  "description": "Create a viral AI character and finished short vertical videos (TikTok, Reels, Shorts) end to end on WaveSpeed or Fish Audio: Character Bible, consistent look, voice, scripts, Seedance 2.5 video, lip-sync, editing and a posting pack, inside a hard budget cap.",
   "version": "1.0.0",
   "author": {
     "name": "ChainScriptor"
@@ -15,6 +15,7 @@
     "shorts",
     "video-generation",
     "wavespeed",
+    "fish-audio",
     "seedance"
   ]
 }
