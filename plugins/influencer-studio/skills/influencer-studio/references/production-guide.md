@@ -8,7 +8,8 @@ Formats for step 4 (script and shot list), file layout for step 5, and the publi
 influencer-studio/<slug>/
   project.json            settings, chosen models, voice, current step (edit via `studio.py set`)
   ledger.jsonl            every paid run: model, cost, outputs (written by studio.py, don't edit)
-  01-character/character-bible.md
+  01-character/character-bible.md, trend-notes.md (dated, with links)
+  prompts/base.txt, ref-*.txt, ep01-shot01-key.txt, ep01-shot01-motion.txt   (every prompt, reusable with --prompt-file)
   02-look/candidates…, master.png, refs/ref-front.png, ref-34.png, ref-full.png, ref-<expression>.png
   03-voice/voice.json, voice-test-*.mp3
   04-content/series.md, ep01-script.md, ep01-plan.json

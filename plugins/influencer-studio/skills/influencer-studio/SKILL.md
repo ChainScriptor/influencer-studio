@@ -12,8 +12,8 @@ The pipeline has a kickoff and six steps. Steps 1, 4 and 6 are free; steps 2, 3 
 | Step | What happens | Typical spend |
 |---|---|---|
 | Kickoff | Check the engine, open or create a project, set the budget | free |
-| 1. Character | Interview, then the Character Bible | free |
-| 2. Look | Master portrait, then the reference sheet | low |
+| 1. Character | Trend refresh, interview, three concept pitches, then the Character Bible | free |
+| 2. Look | Base portrait (the master), then the reference sheet | low |
 | 3. Voice | Pick and lock a voice (skip for silent characters) | low |
 | 4. Content | Series format, episode ideas, script and shot list, quote | free |
 | 5. Production | Keyframes, then video clips, voice lines and lip-sync | most of it |
@@ -22,9 +22,16 @@ The pipeline has a kickoff and six steps. Steps 1, 4 and 6 are free; steps 2, 3 
 ## Working with the user
 
 - **Language.** Talk in the user's language and write the project documents in it. Write image and video prompts in English, because most models follow English best. Dialogue stays in the character's language.
-- **Ask in batches.** Ask up to four questions at a time. Give each one 2–4 concrete options and put your recommended option first, marked "(Recommended)". If a structured question tool is available (for example AskUserQuestion), use it; otherwise use numbered options. The user can then say "go with your picks" and keep moving. Base each batch's options on the earlier answers, so the questions never feel generic.
+- **Ask in batches.** Ask up to four questions at a time. Give each one 2–4 concrete options and put your recommended option first, marked "(Recommended)". If a structured question tool is available (for example AskUserQuestion), use it, with multi-select when the choices aren't exclusive (face extras, for example); otherwise use numbered options. The user can then say "go with your picks" and keep moving. Base each batch's options on the earlier answers, so the questions never feel generic.
 - **Show progress.** Keep a visible checklist of the kickoff and the six steps (use a todo/task tool if there is one) and tick steps off as you go.
-- **Money.** Before any paid batch, state what it is, how many runs, and the quoted cost (dollars on WaveSpeed, credits on Fish Audio), and get a yes. Ask for approval per batch ("4 portrait candidates, about $0.16, go?"), not per image. `studio.py` enforces the budget and credit caps. Raise a cap only when the user asks for it.
+- **Money.** Every paid batch is presented the same way, so the user always knows what they are paying for:
+  1. A header: "**Prompt: <name>** (<model> · 9:16 · <quality> · <resolution> · est. $<x> each), saved to prompts/<name>.txt".
+  2. The full prompt in a code block. Prompts live in the project's `prompts/` folder, and `run --prompt-file` reads them from there.
+  3. "Why it works": 2–4 bullets on the choices that matter.
+  4. A cost plan: "4 candidates × $0.22 = ~$0.88. The project total afterwards would be about $0.88 of your $10 budget." On Fish Audio, give it in credits.
+  5. The approval question: "Yes, generate 4 (Recommended)" (with model and settings) / a cheaper option ("Only 3 (~$0.66)") / "Tweak the prompt first".
+
+  Approve per batch, not per image. `studio.py` enforces the budget and credit caps. Raise a cap only when the user asks for it.
 - **Show every result.** Display or attach the generated images and videos (or give their paths) and let the user choose. Look at them yourself before showing them, and re-roll obvious failures (warped hands, a different face, broken text) once before asking.
 
 ## Engines
@@ -88,19 +95,35 @@ Some behaviour to know about:
 
 ## Step 1: Character (free)
 
-Read `references/character-interview.md` and `references/viral-patterns.md` now. The interview works best when the options already reflect what goes viral.
+Read `references/character-interview.md` and `references/viral-patterns.md` now. The interview works best when the options already reflect what is going viral right now.
 
-1. Interview in two or three batches, following the interview guide: goal, identity, scroll-stopper and vibe first; then name, signature details and voice; then format and boundaries.
-2. Write `01-character/character-bible.md` from `assets/character-bible-template.md`. Make it concrete: the **Visual DNA** section is copied into every image prompt, so it must describe the face, age marks, hair, build, wardrobe and setting precisely enough that two prompts produce the same person.
-3. Show the user a short summary (name, one-line concept, Visual DNA, signature bit) and adjust it until they approve.
-4. Save the decisions: `set <slug> character.name="..." character.concept="..." current_step=look`.
+1. **Refresh the trend notes.**
+   - If you can search the web, look for AI characters and short-form formats that went viral in the last ~3 months (e.g. "viral AI character TikTok <month year>", "AI influencer went viral <month year>").
+   - Write the 3–5 strongest real cases to `01-character/trend-notes.md`, with today's date, the link, and one line on why each worked. Reuse a notes file that is less than 14 days old.
+   - Only cite cases you actually found, with their links. Never invent a case or its numbers. Without web search, say so in one line and work from `viral-patterns.md`.
+2. **Core batch.** Ask batch A from the interview guide: goal, who they are, the scroll-stopper, the vibe.
+3. **Pitch three concepts.**
+   - Open with one line on the notes ("The viral-patterns notes were refreshed today, so I'll pitch from those. They include <case> from <month>.") and one line restating the brief.
+   - Pitch three distinct characters as concept cards (the format is in the interview guide): name and series nickname, concept, signature look, attitude, format, and why it works, including the production risk.
+   - Mark your favourite "⭐ my pick" and close with "My recommendation is <name>." and the reason. Weigh how strongly it stops the scroll, how repeatable the format is, and how well today's video models handle that kind of motion ("AI feasibility" in `viral-patterns.md`).
+   - The user picks one, mixes two, or asks for three new ones.
+4. **Detail batches.** Settle the details with batches B and C from the interview guide: face extras as a multi-select, hair, outfit, backstory, voice, boundaries. Offer specific options that fit the chosen concept, and accept "you fill in the rest".
+5. **Write the bible** in `01-character/character-bible.md`, from `assets/character-bible-template.md`.
+   - The **Identity block** describes only the face and body: face shape, eyes, brows, nose, marks, facial hair, hair, skin tone, build. It is pasted word for word into every image prompt and never changes.
+   - Wardrobe, props and settings are a separate section, so the gear can change without the face drifting.
+6. **Lock gate.** Summarise in a few lines: name, concept, the key identity marks, signature look, the bit. Then ask "Anything to change before we lock <name>?", with "Lock it (Recommended)" first. Mention once that the platform's AI-generated label should be on whenever the character is posted.
+7. Save: `set <slug> character.name="..." character.concept="..." current_step=look`.
 
 ## Step 2: Look (paid, low)
 
 The look must stay the same in every video. Lock it once and reuse it everywhere.
 
-1. **Master portrait.** Build one prompt from the Visual DNA, following the prompting guide in `references/models-and-costs.md`. Quote 4 candidates, get approval, generate them, and show them. Allow up to two rounds of changes, then copy the chosen image to `02-look/master.png`. If the user started from a photo, use it as the reference for an edit model instead of text-to-image.
-2. **Reference sheet.** With an image-edit model and the master as the reference, generate 4–6 references: a front close-up, a three-quarter view, the full body in the signature outfit, two key expressions, and the character in their signature setting. Save them as `02-look/refs/ref-<what>.png`. Compare each one with the master and discard any where the face drifted. These references anchor every later shot.
+1. **Base portrait (the master).**
+   - Write the prompt from the base-portrait recipe in `references/models-and-costs.md`: the identity block word for word, a calm everyday scene, chest-up straight-on framing, the wardrobe, real-skin details, phone-camera look, and the negatives. Save it as `prompts/base.txt`.
+   - Present the batch in the standard way (header, prompt, why it works, cost plan, approval question; see "Money" above). The base portrait is the reference that every later image and clip copies the face from, so its "why it works" should explain the choices that protect that: even light, nothing covering the eyes or brows, no selfie distortion, hands out of frame.
+   - Generate 4 candidates (`run ... --prompt-file prompts/base.txt`) and show them numbered side by side. Allow up to two rounds of changes, then copy the chosen one to `02-look/master.png`.
+   - If the user started from a photo, use it as the reference for an edit model instead of text-to-image.
+2. **Reference sheet.** Save each prompt as `prompts/ref-<what>.txt`. With an image-edit model and the master as the reference, generate 4–6 references: a front close-up, a three-quarter view, the full body in the signature outfit, two key expressions, and the character in their signature setting. Save them as `02-look/refs/ref-<what>.png`. Compare each one with the master and discard any where the face drifted. These references anchor every later shot.
 
    How to pass the master: on WaveSpeed, `-i images='["@02-look/master.png"]'`; on Fish Audio, `generate_image_edit` with the master's `object_key` as role `ref`.
 3. Save the choices: `set <slug> models.image=<id> models.edit=<id> current_step=voice`. On Fish Audio, also save the object keys (`fish.objects.master=...`, `fish.objects.ref_front=...`), so later episodes reuse them without uploading again.
@@ -126,7 +149,7 @@ Read `references/production-guide.md` (script and shot-list format) and use the 
 
 Spend in order from cheap to expensive, so that you never pay for a video of a frame nobody liked.
 
-1. **Keyframes.** For each shot, make one still with the edit model, using the master and the most relevant reference. Start the prompt with an instruction to keep the person identical (see the prompting guide). Show all keyframes together and re-roll only the ones the user rejects.
+1. **Keyframes.** For each shot, make one still with the edit model, using the master and the most relevant reference. Start the prompt with an instruction to keep the person identical (see the prompting guide). Save the prompts as `prompts/ep01-shot01-key.txt`, and the motion prompts later as `prompts/ep01-shot01-motion.txt`. Show all keyframes together and re-roll only the ones the user rejects.
 2. **Voice lines.** Generate the dialogue with the locked voice, one file per line, and check the durations with `assemble.py --probe`.
 3. **Clips.** Animate each approved keyframe with the project's video model, `models.video` in project.json. It defaults to `bytedance/seedance-2.5/image-to-video`: run `schema` on it once per project to confirm its inputs (durations, resolutions). Use the motion prompt from the shot list, with one clear action and one camera move. For shots where the character speaks to camera, use a talking-avatar / lip-sync model with the keyframe and the voice line instead.
 

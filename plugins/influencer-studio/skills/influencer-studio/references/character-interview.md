@@ -1,8 +1,10 @@
 # Character interview
 
-The goal is a character that (a) stops the scroll, (b) can carry a repeatable series, and (c) can be generated consistently. Run the interview in batches of up to four questions. Each question gets 2–4 options with the recommended one first. Derive the options from earlier answers and from `viral-patterns.md`. Don't copy the examples below verbatim when the context points elsewhere.
+The goal is a character that (a) stops the scroll, (b) can carry a repeatable series, and (c) can be generated consistently. Run the interview in batches of up to four questions, each with 2–4 options and the recommended one first. Derive the options from earlier answers, from `trend-notes.md` and from `viral-patterns.md`. Don't copy the examples below verbatim when the context points elsewhere.
 
-How to pick the "(Recommended)" option: prefer the option with the strongest **contrast** that is also **easy to keep consistent**. Distinctive faces, one signature outfit, one home location, and one prop are easy. Crowds, constantly changing outfits, and fast action are hard and expensive.
+How to pick the "(Recommended)" option: prefer the option with the strongest **contrast** that is also **easy to keep consistent and to animate**. A distinctive face, one signature outfit, one home location, one prop, and slow or arm-only motion are easy. Crowds, constantly changing outfits, fast full-body action and hands handling small objects are hard and expensive (see "AI feasibility" in `viral-patterns.md`).
+
+The flow: **batch A → three concept cards → the user picks → batch B → batch C → bible → lock gate.**
 
 ## Batch A: the core (always ask)
 
@@ -24,29 +26,72 @@ How to pick the "(Recommended)" option: prefer the option with the strongest **c
    - Smug, sharp, unbothered
    - Dramatic, theatrical, sincere
 
-## Batch B: specifics
+## Concept cards (after batch A)
 
-1. **Name**: offer three names that fit the origin and are easy to say and remember, and allow a custom name. Check that a name doesn't belong to a famous real person.
-2. **Niche / recurring subject**: what they keep talking about or doing (for example "reviews Gen-Z trends", "rates modern foods", "gives terrible life advice", "teaches one Greek word a day"). Offer three derived from the vibe.
-3. **Signature visual**: one outfit, one prop, one place. For example: an immaculate three-piece suit, a tiny espresso cup, a 1970s living room. Offer three bundles.
-4. **Do they talk?**
-   - Speaks to camera: dialogue with voice and lip-sync (Recommended when the humour is verbal)
-   - Voiceover only, never lip-synced (cheaper and very reliable)
-   - Silent: expressions, text on screen and music (cheapest)
+Open with one line on the trend notes and one line restating the brief. Then pitch three concepts that are genuinely different from each other: a different job, a different signature action, a different risk profile. Use this format:
+
+```markdown
+**1. <Full name>, "<series nickname>"** ⭐ my pick
+- **Concept:** <age, origin, former life> who <the repeatable action>, played <vibe>.
+- **Signature look:** <two or three visual hooks that read at thumbnail size>.
+- **Attitude:** <how they carry themselves; what they never do (e.g. never look at the camera)>.
+- **Format:** <what happens in every clip, length, talking or wordless, and why it travels across languages>.
+- **Why it works:** <the viral pattern it borrows (cite a trend-notes case when one applies), the series hook ("where is he conducting now?"), and the production risk, honestly: "fast motion is harder for video models, so stunts can morph">.
+```
+
+Then close with: "My recommendation is **<name>**. <One or two sentences: strongest repeatable format, and motion the video model handles well.>"
+
+What makes a concept strong:
+- The action is **repeatable in endless locations or variations**: that's the series.
+- It works **without sound or language** where possible (wordless formats travel worldwide), or the audio *is* the joke.
+- The motion suits AI video: arms, head turns, facial reactions and slow walks are safe; flips, stunts, running and object juggling are risky.
+- The look has **two or three thumbnail-size hooks**: a hair shape, one garment, one accessory.
+
+## Batch B: details of the chosen concept
+
+Offer options specific to the chosen concept. These examples are for an older man:
+
+1. **Face extras** (multi-select: "pick any, or I fill in the rest")
+   - Ruddy, weathered cheeks (Recommended): outdoor skin, sun spots, deep crow's feet
+   - Bushy white eyebrows: thick, slightly unruly, adds to the deadpan
+   - Broken-nose bump: a slightly crooked nose from a "past life"
+   - Small scar: faint, through the chin or an eyebrow
+
+   Other good identity marks: a mole in a fixed spot, a gap tooth, hooded eyes, uneven brows, freckles, age spots. Two to four marks make a face memorable and help the model keep it the same. More than that turns into a caricature.
+2. **Hair and facial hair**: three options that fit (for example a walrus moustache, a white pompadour, a bald crown with a white fringe).
+3. **Signature outfit and prop**: three bundles. Keep them separate from the face in the bible.
+4. **Backstory?**
+   - One-line mystery (Recommended): "Retired alpine postman from a village near Garmisch. Nobody knows where he learned this." It fuels the comments.
+   - Fuller story: a few lines with heart (widower, took up skating at 70 after his grandson dared him). Better for a lifestyle angle.
+   - None: pure image, no lore.
+
+If the character talks, add: **voice and language** (accent, energy; the default is the user's language, or English for international reach).
 
 ## Batch C: format and boundaries (can be one batch with defaults)
 
 1. **Visual style**: photoreal, as if filmed on a phone (Recommended) / cinematic photoreal / stylised 3D / anime.
-2. **Language and accent of speech**, if they talk (default: the user's language, or English for international reach).
+2. **Talking**: speaks to camera / voiceover only / silent (Recommended for wordless formats: cheapest and travels best).
 3. **Off-limits topics**: politics, religion, swearing, anything the user wants to avoid (default: keep it brand-safe).
 4. **Posting rhythm** for planning: 3/week (Recommended) / daily / weekly.
 
-## Turning answers into the bible
+## Turning the answers into the bible
 
-- **Concept line**: "<Name>, a <age> <origin> <identity> who <recurring action>, delivered <vibe>." This becomes the series' elevator pitch.
-- **Visual DNA**: one dense paragraph in English that gets pasted into prompts. It covers face shape, eyes, eyebrows, nose, age marks (wrinkles, spots, grey stubble), hair (cut, colour, hairline), build and posture, skin tone, the signature outfit described down to colours and fabric, glasses and jewellery, and the home setting. Avoid vague words like "handsome" and "stylish". Describe what makes them look that way.
-- **Personality and voice**: how they talk (sentence length, favourite words, what they never say), their worldview, and what annoys or delights them.
+- **Concept line**: "<Name>, a <age> <origin> <identity> who <recurring action>, delivered <vibe>."
+- **Identity block** (in English, one dense paragraph, face and body only): face shape, eyes (colour and shape), brows, nose, mouth and teeth if visible, the chosen marks *with their exact positions* ("a small mole on the left cheekbone"), facial hair, hair (cut, colour, hairline), skin tone and texture, build and posture. No clothing, no setting, no mood. Avoid vague words like "handsome" or "stylish": describe what makes them look that way. This paragraph goes word for word into every image prompt.
+- **Wardrobe and props**: the signature outfit down to colours and fabrics, the prop, alternates. Kept separate, so outfits can change while the face stays locked.
+- **Home setting**: room or place, key furniture, colours, light.
+- **Personality and voice**: how they talk (sentence length, favourite words, what they never say), their worldview, what annoys or delights them.
 - **The bit**: catchphrase, sign-off, recurring gesture or prop moment.
+- **Backstory**: from batch B.
 - **Boundaries**: from batch C.
 
 The template is in `assets/character-bible-template.md`.
+
+## Lock gate
+
+After writing the bible, summarise it in a few lines and ask one question: "Anything to change before we lock <name>?"
+- **Lock it** (Recommended)
+- Change the look
+- Change the personality or format
+
+After the lock, the identity block only changes if the user explicitly asks, because every image made afterwards depends on it.

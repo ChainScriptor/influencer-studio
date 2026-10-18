@@ -2,6 +2,8 @@
 
 A working playbook for short vertical video. Use it to shape the character in step 1 and the format and scripts in step 4. These are patterns, not guarantees: a strong character in a repeatable format, posted consistently, is what compounds.
 
+This file is timeless. The current examples come from `01-character/trend-notes.md`, which step 1 refreshes with web search. Pair a pattern from here with a real, recent case from there when you pitch.
+
 ## Contents
 1. Why AI characters get shared
 2. Hook rules (first 1–2 seconds)
@@ -10,6 +12,7 @@ A working playbook for short vertical video. Use it to shape the character in st
 5. Series and retention
 6. Platform fit
 7. Anti-patterns
+8. AI feasibility (what video models handle well)
 
 ## 1. Why AI characters get shared
 
@@ -77,3 +80,21 @@ A working playbook for short vertical video. Use it to shape the character in st
 - A face that changes between videos: viewers notice and stop trusting the character. Always generate from the master and the references.
 - Slow openings, explaining the joke, too much text on screen.
 - Copying a real person's likeness, voice or name.
+
+## 8. AI feasibility (what video models handle well)
+
+Judge every concept and every shot by how well today's image-to-video models render it. A brilliant idea that morphs on screen loses to a simpler one that looks real.
+
+| Safe (renders convincingly) | Risky (often morphs or looks fake) |
+|---|---|
+| Arm and hand gestures in the air (conducting, pointing, waving) | Fast full-body motion: flips, stunts, running, dancing choreography |
+| Head turns, eyebrow raises, slow blinks, deadpan stares | Hands manipulating small objects (cards, phones, utensils) in close-up |
+| Slow walks into frame, sitting down, standing up | Two characters touching or interacting physically |
+| One subject, static or slowly moving camera | Crowds, many moving background people, mirrors |
+| Ambient motion: wind, steam, pigeons, traffic in the background | Readable text, logos, screens with content |
+| Short shots (4–6s) cut together | One long take with several actions |
+
+How to use it:
+- In **concept cards**, name the risk honestly ("stunts can morph, which hurts plausibility") and prefer concepts whose signature action is in the safe column. A conductor's arms beat a skateboarder's tricks.
+- In **shot lists**, give each shot one safe action. Get risky moments with editing: cut on the moment of action, show the reaction instead of the stunt, imply the action off-screen.
+- **Minimal-motion formats** ("walks in, stops, judges in silence") are the safest bet for realism but less of a scroll-stop. Make up for it with a stronger visual contrast and sharper on-screen text.

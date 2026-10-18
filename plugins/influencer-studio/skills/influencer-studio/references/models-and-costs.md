@@ -15,7 +15,7 @@ Seedance 2.5 is the default video model for every clip. The other defaults are W
 
 | Role | Default model | Key inputs | Notes |
 |---|---|---|---|
-| Master portrait (text → image) | `bytedance/seedream-v5.0-pro` | `prompt`, `aspect_ratio`, `resolution` | Strong photorealism |
+| Base portrait / master (text → image) | `bytedance/seedream-v5.0-pro` | `prompt`, `aspect_ratio`, `resolution` | Strong photorealism; a GPT Image model is a good alternative (`models gpt-image`) |
 | References and keyframes (edit with reference) | `bytedance/seedream-v5.0-pro/edit` | `prompt`, `images: [url, ...]` | Pass the master (plus a reference) every time |
 | **Clips (image → video): default** | `bytedance/seedance-2.5/image-to-video` | `prompt`, `image`, ... (check `schema`) | Best motion and identity hold; stored as `models.video` in every new project |
 | Clips: cheaper alternative, only if the user agrees | `wavespeed-ai/minimax-h3/image-to-video` | `prompt`, `image`, `duration` | Much cheaper, generates native audio |
@@ -76,22 +76,37 @@ Fill `inputs` with the values that drive the price (duration, resolution, number
 
 ## 5. Prompting guide
 
-### Master portrait (text → image)
+### Base portrait (the master, text → image)
 
-Structure: **shot type and framing → who (Visual DNA) → wardrobe → expression and pose → setting → light → camera and texture.**
+The base portrait is the reference that every later image and clip copies the face from. Optimise it for a **clear, evenly lit, undistorted view of the face**, not for drama. Save the prompt as `prompts/base.txt`.
 
-Photoreal "filmed on a phone" look: "candid smartphone photo, natural window light, slight grain, realistic skin texture with pores and wrinkles, unretouched, 9:16 vertical". Avoid "8k, masterpiece, hyperdetailed": those words push towards plastic, over-smooth faces.
+Recipe: labelled sections, in this order.
 
-Example:
-> Vertical 9:16 medium close-up portrait. A 74-year-old Italian man with a long narrow face, deep-set brown eyes under thick salt-and-pepper eyebrows, a prominent Roman nose, deep forehead wrinkles, neatly trimmed white stubble, and silver hair combed straight back with a receding hairline. Slim, upright posture. Charcoal three-piece wool suit, burgundy silk tie, gold tie pin. Unimpressed deadpan expression, looking straight into the lens. 1970s living room with green velvet armchair and wood panelling, softly out of focus. Warm late-afternoon window light from the left. Candid smartphone photo, realistic skin texture, slight grain.
+```text
+Photorealistic, unedited smartphone photo taken by a friend standing about a metre away.
+Scene: <a calm everyday place that fits the character>, <soft overcast daylight or open shade>, <2–3 ordinary background details>.
+Subject: <Name>, a <age>-year-old <origin> <man/woman>, <IDENTITY BLOCK, word for word from the bible> and a calm, <vibe> expression.
+Pose and framing: chest-up, eye level, facing the lens straight on, slightly off-centre, face filling about a third of the vertical frame, arms relaxed at the sides with hands out of frame. Mouth closed.
+Wearing: <signature outfit; any hat pushed back so the forehead and brows are fully visible>.
+Details: visible pores and fine lines, a few stray hairs, natural uneven skin tone, slightly creased clothes, ordinary background details.
+Camera: typical phone main lens, mild smartphone HDR, deep focus with the background sharp, natural grain in the shadows, horizon very slightly tilted.
+No text, no watermark, no logos. No beauty retouching, no studio lighting, no portrait-mode background blur.
+```
 
-Generate several candidates (the `num_images` input, or several runs) rather than polishing one prompt endlessly. Picking is faster than describing.
+Why each choice matters (use these as the "why it works" bullets):
+- **Overcast light and straight-on, chest-up framing** give the model a clean, evenly lit view of the face. Every later scene copies the face from this image, so a clear reference matters more than drama.
+- **Nothing covers the identity**: hats pushed back, no sunglasses, the hair off the brows. If the brows and eyes are half the identity, they must be fully visible.
+- **"Taken by a friend", not "selfie"**: it avoids the wide-angle close-up distortion that makes noses huge, and it keeps the hands (a common failure point) out of frame.
+- **Real-skin details and phone-camera flaws** (grain, mild HDR, a slightly tilted horizon) push the model away from glossy, plastic "AI faces". Words like "8k, masterpiece, hyperdetailed" push towards them, so leave them out.
+- **Deep focus, no portrait blur**: the background stays readable for later edits, and the face edges stay clean.
+
+Model choice: a strong photoreal text-to-image model, such as `bytedance/seedream-v5.0-pro` or a GPT Image model on WaveSpeed (`models gpt-image` to find the current ID and its `quality` / `size` options), or `seedream-5-0` / `gpt-image-2` on Fish Audio. Use 9:16 and high quality for this one image, because it is reused for everything. Generate 4 candidates and pick; picking is faster than describing.
 
 ### References and keyframes (edit with reference)
 
 Always pass the master as the first image; add a matching reference when one exists (a full-body reference for a full-body shot). Start the prompt with the identity lock, then describe only what changes:
 
-> Same man as in the reference image. Keep his face, age, hair, stubble and suit exactly identical. Change: he is sitting on the green armchair holding a can of energy drink at arm's length, inspecting it with suspicion. Same living room, same warm window light. Vertical 9:16, candid smartphone photo.
+> Same man as in the reference image. Keep his face exactly identical: <identity block, word for word>. Keep the suit. Change: he is sitting on the green armchair holding a can of energy drink at arm's length, inspecting it with suspicion. Same living room, same warm window light. Vertical 9:16, candid smartphone photo.
 
 Keyframes for clips that will be animated should leave room for the motion: a slight action pose, hands visible if they will move, and a clear head and mouth for talking shots.
 

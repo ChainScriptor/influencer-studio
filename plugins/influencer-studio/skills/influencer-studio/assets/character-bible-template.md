@@ -11,19 +11,21 @@
 - Age: <number>
 - From / lives in: <origin> / <home>
 - Former or current job: <job; it shapes their opinions>
-- Backstory in 3 lines: <...>
+- Backstory: <one-line mystery / a few lines / none>
 
 ## Scroll-stopper
 <The contrast or hook in one sentence, e.g. "A retired Milanese tailor in a three-piece suit, reviewing Gen-Z trends with zero facial expression.">
 
-## Visual DNA (paste into every image prompt, in English)
-<One dense paragraph: face shape, eyes, eyebrows, nose, age marks, facial hair, hair (cut, colour, hairline), build and posture, skin tone, signature outfit down to colours and fabric, glasses and jewellery.>
+## Identity block (LOCKED: paste word for word into every image prompt, in English)
+<One dense paragraph about the face and body only: face shape, eyes (colour and shape), brows, nose, mouth and teeth if visible, 2–4 identity marks with exact positions (e.g. "a small mole on the left cheekbone"), facial hair, hair (cut, colour, hairline), skin tone and texture, build and posture. No clothes, no setting, no mood.>
 
-- Signature outfit: <...>
+## Wardrobe, props and setting (can change; the face never does)
+- Signature outfit: <colours, fabrics, fit>
+- Alternates: <e.g. winter coat, swimwear for a beach episode>
 - Signature prop: <...>
 - Home setting: <room, key furniture, colours, light>
 - Visual style: <photoreal phone footage / cinematic / stylised 3D / anime>
-- Locked assets: `02-look/master.png`, `02-look/refs/` (filled in after step 2)
+- Locked assets: `02-look/master.png`, `02-look/refs/`, `prompts/base.txt` (filled in after step 2)
 
 ## Personality
 - Vibe: <three words>

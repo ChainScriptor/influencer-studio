@@ -303,6 +303,15 @@ def parse_value(text):
         return text
 
 
+def read_prompt_file(path, base_dirs=()):
+    """Prompts live as text files in the project's prompts/ folder, so they can be shown, edited and reused."""
+    for base in (Path.cwd(), *base_dirs):
+        p = Path(path) if Path(path).is_absolute() else Path(base) / path
+        if p.is_file():
+            return p.read_text(encoding="utf-8").strip()
+    raise StudioError(f"Prompt file not found: {path}")
+
+
 def parse_inputs(pairs, input_file=None, prompt=None):
     inputs = {}
     if input_file:
@@ -645,7 +654,7 @@ def cmd_init(a):
     pdir = root / slug
     if (pdir / "project.json").exists():
         raise StudioError(f"Project {slug!r} already exists at {pdir}. Pick another name or continue it.")
-    for d in STEPS.values():
+    for d in (*STEPS.values(), "prompts"):
         (pdir / d).mkdir(parents=True, exist_ok=True)
     project = {
         "name": a.name,
@@ -663,7 +672,7 @@ def cmd_init(a):
         "episodes": [],
     }
     save_project(pdir, project)
-    emit({"created": str(pdir), "project": project, "folders": list(STEPS.values())})
+    emit({"created": str(pdir), "project": project, "folders": [*STEPS.values(), "prompts"]})
 
 
 def cmd_projects(a):
@@ -753,7 +762,8 @@ def cmd_schema(a):
 
 def cmd_price(a):
     key = require_key(a.root)
-    inputs = parse_inputs(a.input, a.input_file, a.prompt)
+    prompt = read_prompt_file(a.prompt_file) if a.prompt_file else a.prompt
+    inputs = parse_inputs(a.input, a.input_file, prompt)
     uploaded = {}
     if a.upload:
         inputs = resolve_files(key, inputs, [Path.cwd()], uploaded)
@@ -886,7 +896,8 @@ def cmd_run(a):
     meta = find_model(key, a.model)
     if not meta:
         raise StudioError(f"Model {a.model!r} is not in the WaveSpeed catalog. Search with `models <words>`; never guess ids.")
-    inputs = parse_inputs(a.input, a.input_file, a.prompt)
+    prompt = read_prompt_file(a.prompt_file, [pdir]) if a.prompt_file else a.prompt
+    inputs = parse_inputs(a.input, a.input_file, prompt)
     uploaded = {}
     inputs = resolve_files(key, inputs, [Path.cwd(), pdir], uploaded)
     problems = validate_inputs(meta, inputs)
@@ -1013,6 +1024,7 @@ def build_parser():
     def inputs(sp):
         sp.add_argument("-i", "--input", action="append", default=[], metavar="KEY=VALUE")
         sp.add_argument("-p", "--prompt")
+        sp.add_argument("--prompt-file", help="text file with the prompt, e.g. prompts/base.txt in the project")
         sp.add_argument("--input-file", help="JSON file with the full input object")
 
     sub.add_parser("check").set_defaults(fn=cmd_check)
