@@ -59,7 +59,7 @@ Offer options specific to the chosen concept. These examples are for an older ma
 
    Other good identity marks: a mole in a fixed spot, a gap tooth, hooded eyes, uneven brows, freckles, age spots. Two to four marks make a face memorable and help the model keep it the same. More than that turns into a caricature.
 2. **Hair and facial hair**: three options that fit (for example a walrus moustache, a white pompadour, a bald crown with a white fringe).
-3. **Signature outfit and prop**: three bundles. Keep them separate from the face in the bible.
+3. **Signature outfit and prop**: three bundles. Keep them separate from the face in the bible. If the user wants to choose piece by piece, open the wardrobe and setting menus (batches 4–5 in `character-builder.md`).
 4. **Backstory?**
    - One-line mystery (Recommended): "Retired alpine postman from a village near Garmisch. Nobody knows where he learned this." It fuels the comments.
    - Fuller story: a few lines with heart (widower, took up skating at 70 after his grandson dared him). Better for a lifestyle angle.

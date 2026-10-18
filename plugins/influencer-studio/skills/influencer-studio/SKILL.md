@@ -106,7 +106,14 @@ Read `references/character-interview.md` and `references/viral-patterns.md` now.
    - Build it myself with the character builder
    - Both: pitch concepts, then fine-tune the look in the builder
 
-   The builder is a set of numbered menus: character type (including anthropomorphic animals), gender, age, ethnicity, skin, build, height, proportions, head, neck, eyes, features, facial hair, distinctive features, hair colour, hairstyle and accessories. It lives in `references/character-builder.md`; read it when the user picks builder or both. In builder mode, ask batch A without "who are they?" (the builder covers it), run the builder's three batches, then propose the format and name around the look, and continue at the detail batches below.
+   The builder is a set of numbered menus in five batches:
+   1. Body and identity: character type (including anthropomorphic animals), gender, age, ethnicity, skin, build, height, proportions.
+   2. Face: head, neck, eyes, features, facial hair, distinctive features.
+   3. Hair and style: hair colour, hairstyle, accessories.
+   4. Wardrobe and props: outfit style, top, outerwear, bottom, footwear, headwear, colours and fabric, signature props.
+   5. Setting: home location, place feel, era, time of day, season, mood and light, background life, camera style.
+
+   It lives in `references/character-builder.md`; read it when the user picks builder or both. In builder mode, ask batch A without "who are they?" (the builder covers it), run the builder's three batches, then propose the format and name around the look, and continue at the detail batches below.
 3. **Core batch.** Ask batch A from the interview guide: goal, who they are, the scroll-stopper, the vibe.
 4. **Pitch three concepts.**
    - Open with one line on the notes ("The viral-patterns notes were refreshed today, so I'll pitch from those. They include <case> from <month>.") and one line restating the brief.
@@ -156,7 +163,7 @@ Some video models also generate audio. For lines the character speaks to camera,
 Read `references/production-guide.md` (script and shot-list format) and use the format bank in `references/viral-patterns.md`.
 
 1. **Series format.** Propose 2–3 repeatable formats that fit the character, each with a name, a hook formula, a length (7–20s) and a sign-off. The user picks one. A series beats one-off videos, because viewers come back for the bit.
-2. **Episode ideas.** Pitch 3–5 episodes as one-line loglines with the hook as its own line. The user picks the first one to produce. Do more only if the budget allows.
+2. **Episode ideas.** Pitch 3–5 episodes as one-line loglines with the hook as its own line. The user picks the first one to produce. Do more only if the budget allows. If the user wants to choose an episode's outfit or location themselves, offer the wardrobe (`WA`–`WH`) and setting (`SA`–`SH`) menus from the character builder.
 3. **Script and shot list.** Write `04-content/ep01-script.md` in the format from the production guide. Each shot has a duration, a keyframe prompt, a motion prompt, its dialogue, on-screen text and sound. Fewer, stronger shots are both cheaper and funnier: 3–5 shots for a 10–15s video.
 4. **Quote.** For WaveSpeed, write `04-content/ep01-plan.json` (the format is in `assets/plan-template.json`) and run `quote-plan`. For Fish Audio, estimate each item with the estimate tools, add up the credits, and check the total with `studio.py guard <slug> --credits N`. Show the total next to the remaining budget. If it is tight, offer a cheaper variant: fewer or shorter shots, or stills with a voiceover. Switch to the cheaper MiniMax H3 video model only if the user explicitly agrees, because Seedance 2.5 is the studio's quality default. Get approval, then `set <slug> current_step=production`.
 
